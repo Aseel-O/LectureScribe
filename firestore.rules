@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: lectures
+    // Document ID: lectureId (UUID)
+    // Fields:
+    //   - id: string (required) - Unique ID
+    //   - userId: string (required) - Owner UID
+    //   - timestamp: number (required) - Creation time
+    //   - transcription: string (required) - Full text
+    //   - summary: string (optional) - AI summary
+    //   - mode: string (required) - Processing mode
+    //   - primaryLanguage: string (optional) - Language setting
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidLecture(data) {
+      return data.keys().hasAll(['id', 'userId', 'timestamp', 'transcription', 'mode']) &&
+             data.id is string &&
+             data.userId == request.auth.uid &&
+             data.timestamp is number &&
+             data.transcription is string &&
+             data.transcription.size() < 1000000 &&
+             data.mode in ['both', 'transcribe', 'summary'];
+    }
+
+    match /lectures/{lectureId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && isValidLecture(request.resource.data);
+      allow update: if isAuthenticated() && isOwner(resource.data.userId) && isValidLecture(request.resource.data);
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name": "LectureScribe",
+  "description": "Transcribe and summarize AI and technology lectures in Arabic and English using Gemini AI.",
+  "requestFramePermissions": ["microphone"]
+}

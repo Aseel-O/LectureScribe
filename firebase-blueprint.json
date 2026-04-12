@@ -1,0 +1,25 @@
+{
+  "entities": {
+    "Lecture": {
+      "title": "Lecture",
+      "description": "A transcribed and summarized lecture session.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID for the lecture." },
+        "userId": { "type": "string", "description": "UID of the user who created this lecture." },
+        "timestamp": { "type": "number", "description": "Creation timestamp." },
+        "transcription": { "type": "string", "description": "The full transcription text." },
+        "summary": { "type": "string", "description": "The AI-generated bilingual summary." },
+        "mode": { "type": "string", "description": "Processing mode (both, transcribe, summary)." },
+        "primaryLanguage": { "type": "string", "description": "Selected primary language (mixed, ar, en)." }
+      },
+      "required": ["id", "userId", "timestamp", "transcription", "mode"]
+    }
+  },
+  "firestore": {
+    "/lectures/{lectureId}": {
+      "schema": "Lecture",
+      "description": "Collection of lectures stored by users."
+    }
+  }
+}
